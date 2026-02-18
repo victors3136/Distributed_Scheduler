@@ -1,9 +1,6 @@
 package victors3136.ubb.mfpc.model.characters;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,19 +14,20 @@ public class Character {
 
     @Id
     @Column(name = "id")
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private int id;
 
     @Column(name = "display_name")
     private String name;
 
     @Column(name = "hp")
-    private Integer hp;
+    private int hp;
 
     @Column(name = "attack_modifier")
-    private Integer attackModifier;
+    private int attackModifier;
 
     @Column(name = "defence_modifier")
-    private Integer defenceModifier;
+    private int defenceModifier;
 
     public Character() {
     }
