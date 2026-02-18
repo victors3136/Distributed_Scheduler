@@ -8,6 +8,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @Entity
@@ -15,13 +17,13 @@ import lombok.Setter;
 public class Weapon {
     @Id
     @Column(name = "id")
-    private int id;
+    private Integer id;
 
     @Column(name = "display_name")
     private String name;
 
     @Column(name = "damage")
-    private int damage;
+    private Integer damage;
 
 
     public Weapon() {
@@ -31,8 +33,8 @@ public class Weapon {
     public final boolean equals(Object o) {
         return this == o || (
                 o instanceof Weapon weapon
-                        && id == weapon.id
-                        && damage == weapon.damage
+                        && Objects.equals(id, weapon.id)
+                        && Objects.equals(damage, weapon.damage)
                         && name.equals(weapon.name)
         );
     }
@@ -42,5 +44,14 @@ public class Weapon {
         return 31 * (
                 31 * id + name.hashCode()
         ) + damage;
+    }
+
+    @Override
+    public String toString() {
+        return "Weapon{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", damage=" + damage +
+                '}';
     }
 }

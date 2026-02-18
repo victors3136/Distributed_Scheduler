@@ -7,6 +7,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @Entity
@@ -15,19 +17,19 @@ public class Character {
 
     @Id
     @Column(name = "id")
-    private int id;
+    private Integer id;
 
     @Column(name = "display_name")
     private String name;
 
     @Column(name = "hp")
-    private int hp;
+    private Integer hp;
 
     @Column(name = "attack_modifier")
-    private int attackModifier;
+    private Integer attackModifier;
 
     @Column(name = "defence_modifier")
-    private int defenceModifier;
+    private Integer defenceModifier;
 
     public Character() {
     }
@@ -36,10 +38,10 @@ public class Character {
     public final boolean equals(Object o) {
         return this == o || (
                 o instanceof Character character
-                        && id == character.id
-                        && hp == character.hp
-                        && attackModifier == character.attackModifier
-                        && defenceModifier == character.defenceModifier
+                        && Objects.equals(id, character.id)
+                        && Objects.equals(hp, character.hp)
+                        && Objects.equals(attackModifier, character.attackModifier)
+                        && Objects.equals(defenceModifier, character.defenceModifier)
                         && name.equals(character.name)
         );
     }
@@ -53,5 +55,16 @@ public class Character {
                         ) + hp
                 ) + attackModifier
         ) + defenceModifier;
+    }
+
+    @Override
+    public String toString() {
+        return "Character{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", hp=" + hp +
+                ", attackModifier=" + attackModifier +
+                ", defenceModifier=" + defenceModifier +
+                '}';
     }
 }

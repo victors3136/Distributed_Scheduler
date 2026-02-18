@@ -1,4 +1,4 @@
-package victors3136.ubb.mfpc.model.weapons;
+package victors3136.ubb.mfpc.config.weapons;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,28 +11,30 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Configuration
+@EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "victors3136.ubb.mfpc.model.weapons",
-        entityManagerFactoryRef = "weaponEntityManager",
-        transactionManagerRef = "weaponTransactionManager"
+        entityManagerFactoryRef = "weaponEntityManagerFactory",
+        transactionManagerRef = "weaponTransactionManager",
+        basePackages = {"victors3136.ubb.mfpc.repository.weapons"}
 )
-public class WeaponDbConfig {
-
-    @Bean
-    @ConfigurationProperties("db3.datasource")
+public class WeaponConfig {
+    @Bean(name = "weaponDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.weapons")
     public DataSource weaponDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder
+                .create()
+                .build();
     }
 
-    @Bean(name = "weaponEntityManager")
-    public LocalContainerEntityManagerFactoryBean weaponEntityManager(
+    @Bean(name = "weaponEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean weaponEntityManagerFactory(
             EntityManagerFactoryBuilder builder,
             @Qualifier("weaponDataSource") DataSource dataSource) {
-
         return builder
                 .dataSource(dataSource)
                 .packages("victors3136.ubb.mfpc.model.weapons")
@@ -42,7 +44,7 @@ public class WeaponDbConfig {
 
     @Bean(name = "weaponTransactionManager")
     public PlatformTransactionManager weaponTransactionManager(
-            @Qualifier("weaponEntityManager") EntityManagerFactory entityManagerFactory) {
+            @Qualifier("weaponEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }

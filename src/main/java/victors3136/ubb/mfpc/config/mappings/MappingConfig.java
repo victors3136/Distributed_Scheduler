@@ -1,4 +1,4 @@
-package victors3136.ubb.mfpc.model.mappings;
+package victors3136.ubb.mfpc.config.mappings;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,28 +11,30 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Configuration
+@EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "victors3136.ubb.mfpc.model.mappings",
-        entityManagerFactoryRef = "mappingEntityManager",
-        transactionManagerRef = "mappingTransactionManager"
+        entityManagerFactoryRef = "mappingEntityManagerFactory",
+        transactionManagerRef = "mappingTransactionManager",
+        basePackages = {"victors3136.ubb.mfpc.repository.mappings"}
 )
-public class MappingDbConfig {
-
-    @Bean
-    @ConfigurationProperties("db2.datasource")
+public class MappingConfig {
+    @Bean(name = "mappingDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.mappings")
     public DataSource mappingDataSource() {
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder
+                .create()
+                .build();
     }
 
-    @Bean(name = "mappingEntityManager")
-    public LocalContainerEntityManagerFactoryBean mappingEntityManager(
+    @Bean(name = "mappingEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean mappingEntityManagerFactory(
             EntityManagerFactoryBuilder builder,
             @Qualifier("mappingDataSource") DataSource dataSource) {
-
         return builder
                 .dataSource(dataSource)
                 .packages("victors3136.ubb.mfpc.model.mappings")
@@ -42,7 +44,7 @@ public class MappingDbConfig {
 
     @Bean(name = "mappingTransactionManager")
     public PlatformTransactionManager mappingTransactionManager(
-            @Qualifier("mappingEntityManager") EntityManagerFactory entityManagerFactory) {
+            @Qualifier("mappingEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }

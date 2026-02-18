@@ -15,7 +15,7 @@ public class Mapping {
 
     public Mapping() {}
 
-    public Mapping(int characterId, int weaponId) {
+    public Mapping(Integer characterId, Integer weaponId) {
         this.id = new CharacterWeaponId(characterId, weaponId);
     }
 
@@ -42,5 +42,12 @@ public class Mapping {
         if (id == null) id = new CharacterWeaponId();
         id.setWeaponId(weaponId);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Mapping{" +
+                "id=" + id +
+                '}';
     }
 }

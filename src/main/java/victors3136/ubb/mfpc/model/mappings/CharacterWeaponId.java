@@ -14,15 +14,15 @@ import java.util.Objects;
 public class CharacterWeaponId implements Serializable {
 
     @Column(name = "character")
-    private int characterId;
+    private Integer characterId;
 
     @Column(name = "weapon")
-    private int weaponId;
+    private Integer weaponId;
 
     public CharacterWeaponId() {
     }
 
-    public CharacterWeaponId(int characterId, int weaponId) {
+    public CharacterWeaponId(Integer characterId, Integer weaponId) {
         this.characterId = characterId;
         this.weaponId = weaponId;
     }
@@ -31,13 +31,21 @@ public class CharacterWeaponId implements Serializable {
     public boolean equals(Object o) {
         return this == o || (
                 o instanceof CharacterWeaponId that
-                        && characterId == that.characterId
-                        && weaponId == that.weaponId
+                        && Objects.equals(characterId, that.characterId)
+                        && Objects.equals(weaponId, that.weaponId)
         );
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(characterId, weaponId);
+    }
+
+    @Override
+    public String toString() {
+        return "CharacterWeaponId{" +
+                "characterId=" + characterId +
+                ", weaponId=" + weaponId +
+                '}';
     }
 }
