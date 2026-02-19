@@ -3,6 +3,7 @@ package victors3136.ubb.mfpc.model.characters;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import victors3136.ubb.mfpc.controller.requests.AddCharacterRequest;
 
 import java.util.Objects;
 
@@ -14,7 +15,7 @@ public class Character {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "display_name")
@@ -30,6 +31,15 @@ public class Character {
     private int defenceModifier;
 
     public Character() {
+    }
+
+    public static Character fromAddRequest(AddCharacterRequest req) {
+        var newCharacter = new Character();
+        newCharacter.setName(req.displayName());
+        newCharacter.setHp(req.hp());
+        newCharacter.setAttackModifier(req.attackModifier());
+        newCharacter.setDefenceModifier(req.defenceModifier());
+        return newCharacter;
     }
 
     @Override

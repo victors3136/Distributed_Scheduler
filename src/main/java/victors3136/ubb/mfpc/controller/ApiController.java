@@ -1,5 +1,6 @@
 package victors3136.ubb.mfpc.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import victors3136.ubb.mfpc.controller.requests.*;
@@ -7,6 +8,8 @@ import victors3136.ubb.mfpc.controller.responses.CharacterWeaponStats;
 import victors3136.ubb.mfpc.model.characters.Character;
 import victors3136.ubb.mfpc.model.mappings.Mapping;
 import victors3136.ubb.mfpc.model.weapons.Weapon;
+import victors3136.ubb.mfpc.service.scheduling.TransactionExecutorService;
+import victors3136.ubb.mfpc.utils.ResultWithPossibleException;
 
 import java.util.List;
 
@@ -16,30 +19,29 @@ import java.util.List;
 @RequestMapping("/submit")
 public class ApiController {
 
+    private final TransactionExecutorService service;
+
+    @Autowired
+    public ApiController(TransactionExecutorService service) {
+        this.service = service;
+    }
+
     @PostMapping("/character")
-    ResponseEntity<Character> addCharacter(@RequestBody AddCharacterRequest req) {
-        var c = new Character();
-        c.setHp(req.hp());
-        c.setName(req.displayName());
-        c.setAttackModifier(req.attackModifier());
-        c.setDefenceModifier(req.defenceModifier());
-        return ResponseEntity.ok(c);
+    ResponseEntity<ResultWithPossibleException<Character>> addCharacter(@RequestBody AddCharacterRequest req) {
+        var result = service.addCharacter(req);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/weapon")
-    ResponseEntity<Weapon> addWeapon(@RequestBody AddWeaponRequest req) {
-        var w = new Weapon();
-        w.setDamage(req.damage());
-        w.setName(req.displayName());
-        return ResponseEntity.ok(w);
+    ResponseEntity<ResultWithPossibleException<Weapon>> addWeapon(@RequestBody AddWeaponRequest req) {
+        var result = service.addWeapon(req);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/mapping")
-    ResponseEntity<Mapping> addMapping(@RequestBody AddMappingRequest req) {
-        var m = new Mapping();
-        m.setCharacterId(req.characterName().hashCode());
-        m.setWeaponId(req.weaponName().hashCode());
-        return ResponseEntity.ok(m);
+    ResponseEntity<ResultWithPossibleException<Mapping>> addMapping(@RequestBody AddMappingRequest req) {
+        var result = service.addMapping(req);
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/mapping")

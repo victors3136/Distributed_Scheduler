@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import lombok.Getter;
 import lombok.Setter;
+import victors3136.ubb.mfpc.controller.requests.AddWeaponRequest;
 
 import java.util.Objects;
 
@@ -13,8 +14,8 @@ import java.util.Objects;
 @Table(name = "weapons")
 public class Weapon {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
 
     @Column(name = "display_name")
@@ -25,6 +26,14 @@ public class Weapon {
 
 
     public Weapon() {
+    }
+
+    public static Weapon fromAddRequest(AddWeaponRequest req) {
+        var newWeapon = new Weapon();
+        newWeapon.setName(req.displayName());
+        newWeapon.setDamage(req.damage());
+        System.out.println(newWeapon);
+        return newWeapon;
     }
 
     @Override
