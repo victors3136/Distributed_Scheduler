@@ -6,3 +6,5 @@ public record AddCharacterRequest(
         int attackModifier,
         int defenceModifier) {
 }
+
+

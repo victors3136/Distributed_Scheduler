@@ -4,14 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import victors3136.ubb.mfpc.controller.requests.*;
+import victors3136.ubb.mfpc.controller.responses.AttackMultipleSummary;
+import victors3136.ubb.mfpc.controller.responses.AttackSummary;
 import victors3136.ubb.mfpc.controller.responses.CharacterWeaponStats;
+import victors3136.ubb.mfpc.controller.responses.HealingSummary;
 import victors3136.ubb.mfpc.model.characters.Character;
 import victors3136.ubb.mfpc.model.mappings.Mapping;
 import victors3136.ubb.mfpc.model.weapons.Weapon;
-import victors3136.ubb.mfpc.service.scheduling.TransactionExecutorService;
+import victors3136.ubb.mfpc.service.scheduling.MainService;
 import victors3136.ubb.mfpc.exceptions.ResultWithPossibleException;
-
-import java.util.List;
 
 
 @RestController
@@ -19,29 +20,26 @@ import java.util.List;
 @RequestMapping("/submit")
 public class ApiController {
 
-    private final TransactionExecutorService service;
+    private final MainService service;
 
     @Autowired
-    public ApiController(TransactionExecutorService service) {
+    public ApiController(MainService service) {
         this.service = service;
     }
 
     @PostMapping("/character")
     ResponseEntity<ResultWithPossibleException<Character>> addCharacter(@RequestBody AddCharacterRequest req) {
-        var result = service.addCharacter(req);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(service.addCharacter(req));
     }
 
     @PostMapping("/weapon")
     ResponseEntity<ResultWithPossibleException<Weapon>> addWeapon(@RequestBody AddWeaponRequest req) {
-        var result = service.addWeapon(req);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(service.addWeapon(req));
     }
 
     @PostMapping("/mapping")
     ResponseEntity<ResultWithPossibleException<Mapping>> addMapping(@RequestBody AddMappingRequest req) {
-        var result = service.addMapping(req);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(service.addMapping(req));
     }
 
     @DeleteMapping("/mapping")
@@ -50,21 +48,30 @@ public class ApiController {
     }
 
     @PostMapping("/attack")
-    ResponseEntity<Void> attack(@RequestBody AttackRequest req) {
-        return ResponseEntity.ok().build();
+    ResponseEntity<ResultWithPossibleException<AttackSummary>> attack(@RequestBody AttackRequest req) {
+        return ResponseEntity.ok(service.attack(req));
+    }
+    @PostMapping("/heal")
+    ResponseEntity<ResultWithPossibleException<HealingSummary>> attack(@RequestBody HealCharacterRequest req) {
+        return ResponseEntity.ok(service.heal(req));
+    }
+
+
+    @PostMapping("/attackMultiple")
+    ResponseEntity<ResultWithPossibleException<AttackMultipleSummary>> attackMultiple(@RequestBody AttackMultipleRequest req) {
+        return ResponseEntity.ok(service.attackMultiple(req));
     }
 
     @GetMapping("/character")
-    ResponseEntity<Character> getCharacter(@RequestBody ReadCharacterStats req) {
-        var c = new Character();
-        c.setName(req.characterName());
-        return ResponseEntity.ok(c);
+    ResponseEntity<ResultWithPossibleException<Character>> getCharacter(@RequestBody ReadCharacterStats req) {
+        return ResponseEntity.ok(service.getCharacter(req));
     }
 
-    @PostMapping("/characterweapons")
-    ResponseEntity<CharacterWeaponStats> getCharacterWeapons(@RequestBody ReadCharacterWeaponStats req) {
-        var c = new CharacterWeaponStats(req.characterName(), List.of());
-        return ResponseEntity.ok(c);
+
+    @GetMapping("/weapon")
+    ResponseEntity<ResultWithPossibleException<Weapon>> getCharacter(@RequestBody ReadWeaponStats req) {
+        return ResponseEntity.ok(service.getWeapon(req));
     }
+
 }
 

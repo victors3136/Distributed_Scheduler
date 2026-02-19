@@ -2,11 +2,14 @@ package victors3136.ubb.mfpc.repository.characters;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import victors3136.ubb.mfpc.model.characters.Character;
 
+import java.beans.Transient;
 import java.util.Optional;
 
 @Repository
@@ -19,4 +22,19 @@ public interface CharacterRepository extends JpaRepository<Character, Integer> {
             """, nativeQuery = true)
     Optional<Integer> getIdByName(@Param("name") String name);
 
+    @Query(value = """
+            select *
+            from characters
+            where display_name = :name
+            """, nativeQuery = true)
+    Optional<Character> getByName(@Param("name") String name);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+            update characters
+            set hp = :hp
+            where id = :id
+            """, nativeQuery = true)
+    void updateHp(@Param("id") int id, @Param("hp") int hp);
 }
