@@ -55,6 +55,7 @@ public final class Transaction {
     public String toString() {
         return "Transaction[" +
                 "id=" + id + ", " +
+                "status=" + status + ", " +
                 "operations=" + operations + ", " +
                 "timestamp=" + timestamp + ']';
     }

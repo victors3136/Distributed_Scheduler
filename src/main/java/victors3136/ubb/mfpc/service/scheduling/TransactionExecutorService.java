@@ -19,7 +19,11 @@ import victors3136.ubb.mfpc.service.scheduling.model.enums.Table;
 import victors3136.ubb.mfpc.utils.ResultWithPossibleException;
 
 import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Objects;
+import java.util.Vector;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionExecutorService {
@@ -28,6 +32,7 @@ public class TransactionExecutorService {
     private final CharacterRepository characterRepository;
     private final MappingRepository mappingRepository;
     private final WeaponRepository weaponRepository;
+    public static final List<Transaction> Transactions = new Vector<>();
 
     public TransactionExecutorService(LockService lockService,
                                       CharacterRepository characterRepository, MappingRepository mappingRepository, WeaponRepository weaponRepository) {
@@ -39,6 +44,7 @@ public class TransactionExecutorService {
 
     private <T> ResultWithPossibleException<T> executeTransaction(Transaction transaction,
                                                                   Supplier<T> resultSupplier) {
+        Transactions.add(transaction);
         var undoStack = new ArrayDeque<SqlOperation>();
         try {
             for (var operation : transaction.getOperations()) {
@@ -54,7 +60,6 @@ public class TransactionExecutorService {
             transaction.markCommited();
             return ResultWithPossibleException.success(resultSupplier.get());
         } catch (Exception e) {
-            System.err.println(e.getMessage());
             while (!undoStack.isEmpty()) {
                 undoStack.pop().undoAction().run();
             }
@@ -63,6 +68,7 @@ public class TransactionExecutorService {
         } finally {
             assert !transaction.isActive();
             lockService.releaseAllLocks(transaction.getId());
+            System.out.println(Transactions.stream().map(Objects::toString).collect(Collectors.joining("\n")));
         }
     }
 
@@ -100,46 +106,54 @@ public class TransactionExecutorService {
 
     public ResultWithPossibleException<Mapping> addMapping(AddMappingRequest req) {
         Transaction transaction = new Transaction();
-        var characterId = characterRepository.getIdByName(req.characterName())
-                .orElseThrow();
-        var weaponId = weaponRepository.getIdByName(req.weaponName())
-                .orElseThrow();
-        var mapping = new Mapping(characterId, weaponId);
-
-        Resource characterIdResource = new Resource(
-                Table.Characters,
-                String.valueOf(characterId)
-        ), weaponIdResource = new Resource(
-                Table.Weapons,
-                String.valueOf(weaponId)
-        ), mappingEntryResource = new Resource(
-                Table.Mappings,
-                characterId + "-" + weaponId
-        );
+        final Integer[] characterIdHolder = new Integer[1];
+        final Integer[] weaponIdHolder = new Integer[1];
+        final Mapping[] mappingHolder = new Mapping[1];
 
         transaction.addOperations(
                 new SqlOperation(
-                        characterIdResource,
+                        new Resource(Table.Characters, req.characterName()),
                         LockType.Read,
-                        () -> {
-                        },
+                        () -> characterIdHolder[0] = characterRepository
+                                .getIdByName(req.characterName())
+                                .orElseThrow(),
                         () -> {
                         }
-                ), new SqlOperation(
-                        weaponIdResource,
+                )
+        );
+        transaction.addOperations(
+                new SqlOperation(
+                        new Resource(Table.Weapons, req.weaponName()),
                         LockType.Read,
-                        () -> {
-                        },
+                        () -> weaponIdHolder[0] = weaponRepository
+                                .getIdByName(req.weaponName())
+                                .orElseThrow(),
                         () -> {
                         }
-                ), new SqlOperation(
-                        mappingEntryResource,
+                )
+        );
+        transaction.addOperations(
+                new SqlOperation(
+                        new Resource(
+                                Table.Mappings,
+                                req.characterName() + "-" + req.weaponName()
+                        ),
                         LockType.Write,
-                        () -> mappingRepository.save(mapping),
-                        () -> mappingRepository.delete(mapping)
+                        () -> {
+                            mappingHolder[0] = new Mapping(
+                                    characterIdHolder[0],
+                                    weaponIdHolder[0]
+                            );
+                            mappingRepository.save(mappingHolder[0]);
+                        },
+                        () -> {
+                            if (mappingHolder[0] != null) {
+                                mappingRepository.delete(mappingHolder[0]);
+                            }
+                        }
                 )
         );
 
-        return executeTransaction(transaction, () -> mapping);
+        return executeTransaction(transaction, () -> mappingHolder[0]);
     }
 }

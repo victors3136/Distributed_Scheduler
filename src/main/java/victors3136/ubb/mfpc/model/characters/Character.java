@@ -14,8 +14,8 @@ import java.util.Objects;
 public class Character {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
     @Column(name = "display_name")
