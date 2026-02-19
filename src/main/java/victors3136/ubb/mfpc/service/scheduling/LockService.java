@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import victors3136.ubb.mfpc.service.scheduling.model.Lock;
 import victors3136.ubb.mfpc.service.scheduling.model.Resource;
 import victors3136.ubb.mfpc.service.scheduling.model.enums.LockType;
+import victors3136.ubb.mfpc.exceptions.DeadlockException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

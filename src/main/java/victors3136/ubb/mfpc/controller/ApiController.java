@@ -9,7 +9,7 @@ import victors3136.ubb.mfpc.model.characters.Character;
 import victors3136.ubb.mfpc.model.mappings.Mapping;
 import victors3136.ubb.mfpc.model.weapons.Weapon;
 import victors3136.ubb.mfpc.service.scheduling.TransactionExecutorService;
-import victors3136.ubb.mfpc.utils.ResultWithPossibleException;
+import victors3136.ubb.mfpc.exceptions.ResultWithPossibleException;
 
 import java.util.List;
 
@@ -45,8 +45,8 @@ public class ApiController {
     }
 
     @DeleteMapping("/mapping")
-    ResponseEntity<Void> dropMapping(@RequestBody DropMappingRequest req) {
-        return ResponseEntity.ok().build();
+    ResponseEntity<ResultWithPossibleException<Mapping>> dropMapping(@RequestBody DropMappingRequest req) {
+        return ResponseEntity.ok(service.dropMapping(req));
     }
 
     @PostMapping("/attack")

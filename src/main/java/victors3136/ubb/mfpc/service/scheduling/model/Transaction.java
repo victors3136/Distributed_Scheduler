@@ -17,11 +17,11 @@ import static victors3136.ubb.mfpc.service.scheduling.model.enums.TransactionSta
 @Setter
 public final class Transaction {
     private final UUID id;
-    private final List<SqlOperation> operations;
+    private final List<Operation> operations;
     private final Instant timestamp;
     private TransactionStatus status = Active;
 
-    public Transaction(UUID id, List<SqlOperation> operations, Instant timestamp) {
+    public Transaction(UUID id, List<Operation> operations, Instant timestamp) {
         this.id = id;
         this.operations = operations;
         this.timestamp = timestamp;
@@ -31,7 +31,7 @@ public final class Transaction {
         this(UUID.randomUUID(), new ArrayList<>(), Instant.now());
     }
 
-    public void addOperations(SqlOperation... operations) {
+    public void addOperations(Operation... operations) {
         this.operations.addAll(List.of(operations));
     }
 
@@ -48,7 +48,7 @@ public final class Transaction {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, operations, timestamp);
+        return Objects.hash(id, status, operations, timestamp);
     }
 
     @Override
@@ -61,12 +61,12 @@ public final class Transaction {
     }
 
     public void markCommited() {
-        assert status == Active : "Attempting to update already-completed transaction";
+        if (status != Active) throw new RuntimeException("Attempting to update already-completed transaction");
         status = Commited;
     }
 
     public void markAborted() {
-        assert status == Active : "Attempting to update already-completed transaction";
+        if (status != Active) throw new RuntimeException("Attempting to update already-completed transaction");
         status = Aborted;
     }
 

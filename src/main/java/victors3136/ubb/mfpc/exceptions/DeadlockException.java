@@ -1,4 +1,4 @@
-package victors3136.ubb.mfpc.service.scheduling;
+package victors3136.ubb.mfpc.exceptions;
 
 public class DeadlockException extends Exception {
     public DeadlockException(String message) {

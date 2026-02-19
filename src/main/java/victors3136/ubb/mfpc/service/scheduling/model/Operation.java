@@ -2,7 +2,7 @@ package victors3136.ubb.mfpc.service.scheduling.model;
 
 import victors3136.ubb.mfpc.service.scheduling.model.enums.LockType;
 
-public record SqlOperation(
+public record Operation(
         Resource resource,
         LockType lockType,
         Runnable doAction,
