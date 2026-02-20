@@ -60,13 +60,10 @@ public class LockService {
                     return;
                 }
                 if (canUpgrade(existingLocks, requestingTransactionId)) {
-                    existingLocks.removeIf(lock ->
-                            lock.getOwnerTransactionId().equals(requestingTransactionId)
-                    );
-                    existingLocks.add(new Lock(requestingTransactionId, Write));
+                    upgradeLock(existingLocks, requestingTransactionId);
                     return;
                 }
-                addWaitEdges(requestingTransactionId, existingLocks);
+                updateWaitForGraph(requestingTransactionId, existingLocks);
                 if (detectDeadlock(requestingTransactionId)) {
                     throw new DeadlockException("Deadlock detected! Try again in a bit... ");
                 }
@@ -80,14 +77,20 @@ public class LockService {
         }
     }
 
-    private void addWaitEdges(UUID waitingTransactionId, Collection<Lock> owners) {
+    private void upgradeLock(List<Lock> existingLocks, UUID requestingTransactionId) {
+        existingLocks.removeIf(lock ->
+                lock.getOwnerTransactionId().equals(requestingTransactionId)
+        );
+        existingLocks.add(new Lock(requestingTransactionId, Write));
+    }
+
+    private void updateWaitForGraph(UUID waitingTransactionId, Collection<Lock> owners) {
         var edges = waitForGraph.computeIfAbsent(waitingTransactionId, _ -> new HashSet<>());
         for (var owner : owners) {
             if (owner.getOwnerTransactionId().equals(waitingTransactionId)) {
                 continue;
             }
             edges.add(owner.getOwnerTransactionId());
-
         }
     }
 

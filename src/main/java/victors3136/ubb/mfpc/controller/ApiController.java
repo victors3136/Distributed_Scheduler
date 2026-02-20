@@ -10,7 +10,7 @@ import victors3136.ubb.mfpc.controller.responses.HealingSummary;
 import victors3136.ubb.mfpc.model.characters.Character;
 import victors3136.ubb.mfpc.model.mappings.Mapping;
 import victors3136.ubb.mfpc.model.weapons.Weapon;
-import victors3136.ubb.mfpc.service.scheduling.TaskService;
+import victors3136.ubb.mfpc.service.scheduling.OperationTranslationService;
 import victors3136.ubb.mfpc.exceptions.ResultWithPossibleException;
 
 
@@ -19,10 +19,10 @@ import victors3136.ubb.mfpc.exceptions.ResultWithPossibleException;
 @RequestMapping("/submit")
 public class ApiController {
 
-    private final TaskService service;
+    private final OperationTranslationService service;
 
     @Autowired
-    public ApiController(TaskService service) {
+    public ApiController(OperationTranslationService service) {
         this.service = service;
     }
 
@@ -50,11 +50,11 @@ public class ApiController {
     ResponseEntity<ResultWithPossibleException<AttackSummary>> attack(@RequestBody AttackRequest req) {
         return ResponseEntity.ok(service.attack(req));
     }
+
     @PostMapping("/heal")
-    ResponseEntity<ResultWithPossibleException<HealingSummary>> attack(@RequestBody HealCharacterRequest req) {
+    ResponseEntity<ResultWithPossibleException<HealingSummary>> heal(@RequestBody HealCharacterRequest req) {
         return ResponseEntity.ok(service.heal(req));
     }
-
 
     @PostMapping("/attackMultiple")
     ResponseEntity<ResultWithPossibleException<AttackMultipleSummary>> attackMultiple(@RequestBody AttackMultipleRequest req) {
@@ -66,11 +66,9 @@ public class ApiController {
         return ResponseEntity.ok(service.getCharacter(req));
     }
 
-
     @GetMapping("/weapon")
     ResponseEntity<ResultWithPossibleException<Weapon>> getWeapon(@RequestBody ReadWeaponStats req) {
         return ResponseEntity.ok(service.getWeapon(req));
     }
-
 }
 

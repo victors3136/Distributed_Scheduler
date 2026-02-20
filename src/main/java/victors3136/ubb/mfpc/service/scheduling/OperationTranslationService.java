@@ -29,7 +29,7 @@ import static victors3136.ubb.mfpc.service.scheduling.model.enums.LockType.*;
 import static victors3136.ubb.mfpc.service.scheduling.model.enums.Table.*;
 
 @Service
-public class TaskService {
+public class OperationTranslationService {
     private final TransactionExecutorService executorService;
     private final CharacterRepository characterRepository;
     private final MappingRepository mappingRepository;
@@ -38,10 +38,10 @@ public class TaskService {
     private static final Runnable NoUndoActionRequired = () -> {
     };
 
-    public TaskService(TransactionExecutorService executorService,
-                       CharacterRepository characterRepository,
-                       MappingRepository mappingRepository,
-                       WeaponRepository weaponRepository) {
+    public OperationTranslationService(TransactionExecutorService executorService,
+                                       CharacterRepository characterRepository,
+                                       MappingRepository mappingRepository,
+                                       WeaponRepository weaponRepository) {
         this.executorService = executorService;
         this.characterRepository = characterRepository;
         this.mappingRepository = mappingRepository;
@@ -53,7 +53,7 @@ public class TaskService {
         Character character = Character.fromAddRequest(req);
         transaction.addOperations(
                 new Operation(
-                        new Resource(Characters, String.valueOf(character.getId())),
+                        new Resource(Characters, req.displayName()),
                         Write,
                         () -> characterRepository.save(character),
                         () -> characterRepository.deleteById(character.getId())
@@ -66,7 +66,7 @@ public class TaskService {
         Weapon weapon = Weapon.fromAddRequest(req);
         transaction.addOperations(
                 new Operation(
-                        new Resource(Weapons, String.valueOf(weapon.getId())),
+                        new Resource(Weapons, req.displayName()),
                         Write,
                         () -> weaponRepository.save(weapon),
                         () -> weaponRepository.deleteById(weapon.getId())
