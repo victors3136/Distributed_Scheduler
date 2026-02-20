@@ -23,7 +23,7 @@ public class TransactionExecutorService {
 
     public <T> ResultWithPossibleException<T> submit(Transaction transaction, Supplier<T> result) {
         Transactions.add(transaction);
-        var undoStack = new ArrayDeque<Operation>();
+        var undoStack = new ArrayDeque<Runnable>();
         try {
             for (var operation : transaction.getOperations()) {
                 lockService.waitToLock(
@@ -33,13 +33,14 @@ public class TransactionExecutorService {
                 );
                 operation.doAction().run();
                 Thread.sleep(3_000);
-                undoStack.push(operation);
+                undoStack.push(operation.undoAction());
             }
             transaction.markCommited();
             return ResultWithPossibleException.success(result.get());
         } catch (Exception e) {
             while (!undoStack.isEmpty()) {
-                undoStack.pop().undoAction().run();
+                var nextAction = undoStack.pop();
+                nextAction.run();
             }
             transaction.markAborted();
             return ResultWithPossibleException.failure(e);

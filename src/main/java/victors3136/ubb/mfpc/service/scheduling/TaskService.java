@@ -7,6 +7,7 @@ import victors3136.ubb.mfpc.controller.responses.AttackMultipleSummary;
 import victors3136.ubb.mfpc.controller.responses.AttackSummary;
 import victors3136.ubb.mfpc.controller.responses.HealingSummary;
 import victors3136.ubb.mfpc.controller.responses.NameDamageReceivedPair;
+import victors3136.ubb.mfpc.exceptions.ValidationException;
 import victors3136.ubb.mfpc.model.characters.Character;
 import victors3136.ubb.mfpc.model.mappings.Mapping;
 import victors3136.ubb.mfpc.model.weapons.Weapon;
@@ -19,6 +20,7 @@ import victors3136.ubb.mfpc.service.scheduling.model.Transaction;
 import victors3136.ubb.mfpc.exceptions.ResultWithPossibleException;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,15 +29,16 @@ import static victors3136.ubb.mfpc.service.scheduling.model.enums.LockType.*;
 import static victors3136.ubb.mfpc.service.scheduling.model.enums.Table.*;
 
 @Service
-public class MainService {
+public class TaskService {
     private final TransactionExecutorService executorService;
     private final CharacterRepository characterRepository;
     private final MappingRepository mappingRepository;
     private final WeaponRepository weaponRepository;
+    private static final Random RandomGenerator = new Random();
     private static final Runnable NoUndoActionRequired = () -> {
     };
 
-    public MainService(TransactionExecutorService executorService,
+    public TaskService(TransactionExecutorService executorService,
                        CharacterRepository characterRepository,
                        MappingRepository mappingRepository,
                        WeaponRepository weaponRepository) {
@@ -81,13 +84,15 @@ public class MainService {
                 new Operation(
                         new Resource(Characters, req.characterName()),
                         Read,
-                        () -> characterIdContainer.set(characterRepository.getIdByName(req.characterName()).orElseThrow()),
-                        NoUndoActionRequired),
+                        () -> characterIdContainer.set(characterRepository.getIdByName(req.characterName()).orElseThrow(
+                                () -> new ValidationException("No character with name " + req.characterName() + " found."))
+                        ), NoUndoActionRequired),
                 new Operation(
                         new Resource(Weapons, req.weaponName()),
                         Read,
-                        () -> weaponIdContainer.set(weaponRepository.getIdByName(req.weaponName()).orElseThrow()),
-                        NoUndoActionRequired),
+                        () -> weaponIdContainer.set(weaponRepository.getIdByName(req.weaponName()).orElseThrow(
+                                () -> new ValidationException("No weapon with name " + req.weaponName() + " found."))
+                        ), NoUndoActionRequired),
                 new Operation(
                         new Resource(Mappings, req.characterName() + "-" + req.weaponName()),
                         Write,
@@ -113,12 +118,16 @@ public class MainService {
         transaction.addOperations(
                 new Operation(new Resource(Weapons, req.weaponName()),
                         Read,
-                        () -> weaponIdContainer.set(weaponRepository.getIdByName(req.weaponName()).orElseThrow()),
+                        () -> weaponIdContainer.set(weaponRepository.getIdByName(req.weaponName()).orElseThrow(
+                                () -> new ValidationException("No weapon with name " + req.weaponName() + " found."))
+                        ),
                         NoUndoActionRequired),
                 new Operation(
                         new Resource(Characters, req.characterName()),
                         Read,
-                        () -> characterIdContainer.set(characterRepository.getIdByName(req.characterName()).orElseThrow()),
+                        () -> characterIdContainer.set(characterRepository.getIdByName(req.characterName()).orElseThrow(
+                                () -> new ValidationException("No character with name " + req.characterName() + " found."))
+                        ),
                         NoUndoActionRequired),
                 new Operation(
                         new Resource(Mappings, req.characterName() + "-" + req.weaponName()),
@@ -146,7 +155,9 @@ public class MainService {
                 new Operation(
                         new Resource(Characters, req.characterName()),
                         Read,
-                        () -> characterHolder.set(characterRepository.getByName(req.characterName()).orElseThrow()),
+                        () -> characterHolder.set(characterRepository.getByName(req.characterName()).orElseThrow(
+                                () -> new ValidationException("No character with name " + req.characterName() + " found."))
+                        ),
                         NoUndoActionRequired
                 )
         );
@@ -162,7 +173,9 @@ public class MainService {
                 new Operation(
                         new Resource(Characters, req.weaponName()),
                         Read,
-                        () -> weaponContainer.set(weaponRepository.getByName(req.weaponName()).orElseThrow()),
+                        () -> weaponContainer.set(weaponRepository.getByName(req.weaponName()).orElseThrow(
+                                () -> new ValidationException("No weapon with name " + req.weaponName() + " found."))
+                        ),
                         NoUndoActionRequired
                 )
         );
@@ -182,23 +195,33 @@ public class MainService {
                 new Operation(
                         new Resource(Characters, req.attackerName()),
                         Read,
-                        () -> source.set(characterRepository.getByName(req.attackerName()).orElseThrow()),
+                        () -> source.set(characterRepository.getByName(req.attackerName()).orElseThrow(
+                                () -> new ValidationException("No character with name " + req.attackerName() + " found."))
+                        ),
                         NoUndoActionRequired),
                 new Operation(
                         new Resource(Weapons, req.weaponName()),
                         Read,
-                        () -> weapon.set(weaponRepository.getByName(req.weaponName()).orElseThrow()),
+                        () -> weapon.set(weaponRepository.getByName(req.weaponName()).orElseThrow(
+                                () -> new ValidationException("No weapon with name " + req.weaponName() + " found."))
+                        ),
                         NoUndoActionRequired),
                 new Operation(
                         new Resource(Mappings, req.attackerName() + "-" + req.weaponName()),
                         Read,
-                        () -> mappingRepository.get(source.get().getId(), weapon.get().getId()).orElseThrow(),
+                        () -> mappingRepository.get(source.get().getId(), weapon.get().getId()).orElseThrow(
+                                () -> new ValidationException(
+                                        "No mapping between character with name " + req.attackerName()
+                                                + " and weapon with name " + req.weaponName() + " found.")
+                        ),
                         NoUndoActionRequired
                 ),
                 new Operation(
                         new Resource(Characters, req.targetName()),
                         Read,
-                        () -> target.set(characterRepository.getByName(req.targetName()).orElseThrow()),
+                        () -> target.set(characterRepository.getByName(req.targetName()).orElseThrow(
+                                () -> new ValidationException("No character with name " + req.targetName() + " found."))
+                        ),
                         NoUndoActionRequired),
                 new Operation(
                         new Resource(Characters, req.targetName()),
@@ -207,7 +230,9 @@ public class MainService {
                             var attacker = source.get();
                             var victim = target.get();
                             oldHp.set(victim.getHp());
-                            int rawDamage = weapon.get().getDamage() + attacker.getAttackModifier() - victim.getDefenceModifier();
+                            int rawDamage = weapon.get().getDamage()
+                                    + RandomGenerator.nextInt(attacker.getAttackModifier())
+                                    - RandomGenerator.nextInt(victim.getDefenceModifier());
                             int damage = Math.max(0, rawDamage);
                             victim.setHp(victim.getHp() - damage);
                             characterRepository.save(victim);
@@ -237,18 +262,23 @@ public class MainService {
                 new Operation(
                         new Resource(Characters, req.attackerName()),
                         Read,
-                        () -> source.set(characterRepository.getByName(req.attackerName()).orElseThrow()),
-                        NoUndoActionRequired),
+                        () -> source.set(characterRepository.getByName(req.attackerName()).orElseThrow(
+                                () -> new ValidationException("No character with name " + req.attackerName() + " found."))
+                        ), NoUndoActionRequired),
                 new Operation(
                         new Resource(Weapons, req.weaponName()),
                         Read,
-                        () -> weapon.set(weaponRepository.getByName(req.weaponName()).orElseThrow()),
-                        NoUndoActionRequired),
+                        () -> weapon.set(weaponRepository.getByName(req.weaponName()).orElseThrow(
+                                () -> new ValidationException("No weapon with name " + req.weaponName() + " found."))
+                        ), NoUndoActionRequired),
                 new Operation(
                         new Resource(Mappings, req.attackerName() + "-" + req.weaponName()),
                         Read,
-                        () -> mappingRepository.get(source.get().getId(), weapon.get().getId()).orElseThrow(),
-                        NoUndoActionRequired
+                        () -> mappingRepository.get(source.get().getId(), weapon.get().getId()).orElseThrow(
+                                () -> new ValidationException(
+                                        "No mapping between character with name " + req.attackerName()
+                                                + " and weapon with name " + req.weaponName() + " found.")
+                        ), NoUndoActionRequired
                 )
         );
 
@@ -260,8 +290,9 @@ public class MainService {
                     new Operation(
                             new Resource(Characters, targetName),
                             Read,
-                            () -> targetContainer.set(characterRepository.getByName(targetName).orElseThrow()),
-                            NoUndoActionRequired),
+                            () -> targetContainer.set(characterRepository.getByName(targetName).orElseThrow(
+                                    () -> new ValidationException("No character with name " + req.targetNames() + " found."))
+                            ), NoUndoActionRequired),
                     new Operation(
                             new Resource(Characters, targetName),
                             Write,
@@ -270,18 +301,19 @@ public class MainService {
                                 var victim = targetContainer.get();
                                 oldHp.set(victim.getHp());
 
-                                int rawDamage = weapon.get().getDamage() + attacker.getAttackModifier() - victim.getDefenceModifier();
+                                int rawDamage = weapon.get().getDamage()
+                                        + RandomGenerator.nextInt(attacker.getAttackModifier())
+                                        - RandomGenerator.nextInt(victim.getDefenceModifier());
                                 int damage = Math.max(0, rawDamage);
 
-                                victim.setHp(victim.getHp() - damage);
+                                victim.setHp(Math.max(0, victim.getHp() - damage));
                                 characterRepository.save(victim);
 
                                 individualAttacks.add(
                                         new AttackSummary(
-                                                attacker.getName(),
-                                                victim.getName(),
+                                                attacker.getName(), weapon.get().getName(),
                                                 new NameDamageReceivedPair(
-                                                        weapon.get().getName(),
+                                                        victim.getName(),
                                                         damage
                                                 )
                                         ));
@@ -314,7 +346,9 @@ public class MainService {
                         new Resource(Characters, req.characterName()),
                         Read,
                         () -> {
-                            final var target = characterRepository.getByName(req.characterName()).orElseThrow();
+                            final var target = characterRepository.getByName(req.characterName()).orElseThrow(
+                                    () -> new ValidationException("No character with name " + req.characterName() + " found.")
+                            );
                             characterHolder.set(target);
                             oldHp.set(target.getHp());
                         },

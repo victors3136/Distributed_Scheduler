@@ -68,7 +68,7 @@ public class LockService {
                 }
                 addWaitEdges(requestingTransactionId, existingLocks);
                 if (detectDeadlock(requestingTransactionId)) {
-                    throw new DeadlockException("Deadlock detected for transaction " + requestingTransactionId);
+                    throw new DeadlockException("Deadlock detected! Try again in a bit... ");
                 }
                 someLockBecomesAvailable.await();
             }

@@ -6,12 +6,11 @@ import org.springframework.web.bind.annotation.*;
 import victors3136.ubb.mfpc.controller.requests.*;
 import victors3136.ubb.mfpc.controller.responses.AttackMultipleSummary;
 import victors3136.ubb.mfpc.controller.responses.AttackSummary;
-import victors3136.ubb.mfpc.controller.responses.CharacterWeaponStats;
 import victors3136.ubb.mfpc.controller.responses.HealingSummary;
 import victors3136.ubb.mfpc.model.characters.Character;
 import victors3136.ubb.mfpc.model.mappings.Mapping;
 import victors3136.ubb.mfpc.model.weapons.Weapon;
-import victors3136.ubb.mfpc.service.scheduling.MainService;
+import victors3136.ubb.mfpc.service.scheduling.TaskService;
 import victors3136.ubb.mfpc.exceptions.ResultWithPossibleException;
 
 
@@ -20,10 +19,10 @@ import victors3136.ubb.mfpc.exceptions.ResultWithPossibleException;
 @RequestMapping("/submit")
 public class ApiController {
 
-    private final MainService service;
+    private final TaskService service;
 
     @Autowired
-    public ApiController(MainService service) {
+    public ApiController(TaskService service) {
         this.service = service;
     }
 
@@ -69,7 +68,7 @@ public class ApiController {
 
 
     @GetMapping("/weapon")
-    ResponseEntity<ResultWithPossibleException<Weapon>> getCharacter(@RequestBody ReadWeaponStats req) {
+    ResponseEntity<ResultWithPossibleException<Weapon>> getWeapon(@RequestBody ReadWeaponStats req) {
         return ResponseEntity.ok(service.getWeapon(req));
     }
 
