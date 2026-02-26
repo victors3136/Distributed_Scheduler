@@ -71,4 +71,3 @@ public class ApiController {
         return ResponseEntity.ok(service.getWeapon(req));
     }
 }
-
