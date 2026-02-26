@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 @Getter
 @Setter
@@ -25,6 +26,11 @@ public class CharacterWeaponId implements Serializable {
     public CharacterWeaponId(Integer characterId, Integer weaponId) {
         this.characterId = characterId;
         this.weaponId = weaponId;
+    }
+
+    public CharacterWeaponId(Supplier<Integer> characterId, Supplier<Integer> weaponId) {
+        this.characterId = characterId.get();
+        this.weaponId = weaponId.get();
     }
 
     @Override

@@ -31,7 +31,7 @@ public final class Transaction {
         this(UUID.randomUUID(), new ArrayList<>(), Instant.now());
     }
 
-    public void addOperations(Operation... operations) {
+    public void enqueue(Operation... operations) {
         this.operations.addAll(List.of(operations));
     }
 

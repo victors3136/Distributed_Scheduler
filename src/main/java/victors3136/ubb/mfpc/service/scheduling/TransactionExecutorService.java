@@ -1,8 +1,7 @@
 package victors3136.ubb.mfpc.service.scheduling;
 
 import org.springframework.stereotype.Service;
-import victors3136.ubb.mfpc.exceptions.ResultWithPossibleException;
-import victors3136.ubb.mfpc.service.scheduling.model.Operation;
+import victors3136.ubb.mfpc.exceptions.Result;
 import victors3136.ubb.mfpc.service.scheduling.model.Transaction;
 
 import java.util.ArrayDeque;
@@ -21,7 +20,7 @@ public class TransactionExecutorService {
         this.lockService = lockService;
     }
 
-    public <T> ResultWithPossibleException<T> submit(Transaction transaction, Supplier<T> result) {
+    public <T> Result<T> submit(Transaction transaction, Supplier<T> result) {
         Transactions.add(transaction);
         var undoStack = new ArrayDeque<Runnable>();
         try {
@@ -36,14 +35,14 @@ public class TransactionExecutorService {
                 undoStack.push(operation.undoAction());
             }
             transaction.markCommited();
-            return ResultWithPossibleException.success(result.get());
-        } catch (Exception e) {
+            return Result.withSucces(result.get());
+        } catch (Exception exceptionCause) {
             while (!undoStack.isEmpty()) {
-                var nextAction = undoStack.pop();
-                nextAction.run();
+                var undoAction = undoStack.pop();
+                undoAction.run();
             }
             transaction.markAborted();
-            return ResultWithPossibleException.failure(e);
+            return Result.withFailure(exceptionCause);
         } finally {
             assert !transaction.isActive();
             lockService.releaseAllLocks(transaction.getId());

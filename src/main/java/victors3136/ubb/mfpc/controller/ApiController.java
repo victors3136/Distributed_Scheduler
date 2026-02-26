@@ -11,7 +11,7 @@ import victors3136.ubb.mfpc.model.characters.Character;
 import victors3136.ubb.mfpc.model.mappings.Mapping;
 import victors3136.ubb.mfpc.model.weapons.Weapon;
 import victors3136.ubb.mfpc.service.scheduling.OperationTranslationService;
-import victors3136.ubb.mfpc.exceptions.ResultWithPossibleException;
+import victors3136.ubb.mfpc.exceptions.Result;
 
 
 @RestController
@@ -27,47 +27,47 @@ public class ApiController {
     }
 
     @PostMapping("/character")
-    ResponseEntity<ResultWithPossibleException<Character>> addCharacter(@RequestBody AddCharacterRequest req) {
+    ResponseEntity<Result<Character>> addCharacter(@RequestBody AddCharacterRequest req) {
         return ResponseEntity.ok(service.addCharacter(req));
     }
 
     @PostMapping("/weapon")
-    ResponseEntity<ResultWithPossibleException<Weapon>> addWeapon(@RequestBody AddWeaponRequest req) {
+    ResponseEntity<Result<Weapon>> addWeapon(@RequestBody AddWeaponRequest req) {
         return ResponseEntity.ok(service.addWeapon(req));
     }
 
     @PostMapping("/mapping")
-    ResponseEntity<ResultWithPossibleException<Mapping>> addMapping(@RequestBody AddMappingRequest req) {
+    ResponseEntity<Result<Mapping>> addMapping(@RequestBody AddMappingRequest req) {
         return ResponseEntity.ok(service.addMapping(req));
     }
 
     @DeleteMapping("/mapping")
-    ResponseEntity<ResultWithPossibleException<Mapping>> dropMapping(@RequestBody DropMappingRequest req) {
+    ResponseEntity<Result<Mapping>> dropMapping(@RequestBody DropMappingRequest req) {
         return ResponseEntity.ok(service.dropMapping(req));
     }
 
     @PostMapping("/attack")
-    ResponseEntity<ResultWithPossibleException<AttackSummary>> attack(@RequestBody AttackRequest req) {
+    ResponseEntity<Result<AttackSummary>> attack(@RequestBody AttackRequest req) {
         return ResponseEntity.ok(service.attack(req));
     }
 
     @PostMapping("/heal")
-    ResponseEntity<ResultWithPossibleException<HealingSummary>> heal(@RequestBody HealCharacterRequest req) {
+    ResponseEntity<Result<HealingSummary>> heal(@RequestBody HealCharacterRequest req) {
         return ResponseEntity.ok(service.heal(req));
     }
 
     @PostMapping("/attackMultiple")
-    ResponseEntity<ResultWithPossibleException<AttackMultipleSummary>> attackMultiple(@RequestBody AttackMultipleRequest req) {
+    ResponseEntity<Result<AttackMultipleSummary>> attackMultiple(@RequestBody AttackMultipleRequest req) {
         return ResponseEntity.ok(service.attackMultiple(req));
     }
 
     @GetMapping("/character")
-    ResponseEntity<ResultWithPossibleException<Character>> getCharacter(@RequestBody ReadCharacterStats req) {
+    ResponseEntity<Result<Character>> getCharacter(@RequestBody ReadCharacterStats req) {
         return ResponseEntity.ok(service.getCharacter(req));
     }
 
     @GetMapping("/weapon")
-    ResponseEntity<ResultWithPossibleException<Weapon>> getWeapon(@RequestBody ReadWeaponStats req) {
+    ResponseEntity<Result<Weapon>> getWeapon(@RequestBody ReadWeaponStats req) {
         return ResponseEntity.ok(service.getWeapon(req));
     }
 }

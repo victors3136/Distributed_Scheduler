@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import victors3136.ubb.mfpc.controller.requests.AddCharacterRequest;
+import victors3136.ubb.mfpc.model.HasKey;
 
 import java.util.Objects;
 
@@ -11,7 +12,7 @@ import java.util.Objects;
 @Setter
 @Entity
 @Table(name = "characters")
-public class Character {
+public class Character implements HasKey<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,5 +75,20 @@ public class Character {
                 ", attackModifier=" + attackModifier +
                 ", defenceModifier=" + defenceModifier +
                 '}';
+    }
+
+    @Override
+    public String getKey() {
+        return name;
+    }
+
+    public Character copyWithHp(int newHp) {
+        var x = new Character();
+        x.setId(id);
+        x.setName(name);
+        x.setAttackModifier(attackModifier);
+        x.setDefenceModifier(defenceModifier);
+        x.setHp(newHp);
+        return x;
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import victors3136.ubb.mfpc.model.characters.Character;
 
-import java.beans.Transient;
 import java.util.Optional;
 
 @Repository

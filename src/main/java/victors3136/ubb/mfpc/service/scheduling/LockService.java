@@ -2,7 +2,8 @@ package victors3136.ubb.mfpc.service.scheduling;
 
 import org.springframework.stereotype.Service;
 import victors3136.ubb.mfpc.service.scheduling.model.Lock;
-import victors3136.ubb.mfpc.service.scheduling.model.Resource;
+import victors3136.ubb.mfpc.service.scheduling.model.resources.ResolvedResource;
+import victors3136.ubb.mfpc.service.scheduling.model.resources.Resource;
 import victors3136.ubb.mfpc.service.scheduling.model.enums.LockType;
 import victors3136.ubb.mfpc.exceptions.DeadlockException;
 
@@ -16,7 +17,7 @@ import static victors3136.ubb.mfpc.service.scheduling.model.enums.LockType.*;
 @Service
 public class LockService {
 
-    private final ConcurrentHashMap<Resource, List<Lock>> lockTable =
+    private final ConcurrentHashMap<ResolvedResource, List<Lock>> lockTable =
             new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<UUID, Set<UUID>> waitForGraph =
@@ -30,13 +31,13 @@ public class LockService {
                                  LockType requested) {
         if (existingLocks.isEmpty()) return true;
         if (existingLocks.stream().allMatch(lock ->
-                lock.getOwnerTransactionId().equals(requestingTransactionId))
+                lock.ownerTransactionId().equals(requestingTransactionId))
         ) {
             return true;
         }
         if (requested == Read) {
             return existingLocks.stream().allMatch(lock ->
-                    lock.getType() == Read
+                    lock.type() == Read
             );
         }
         return false;
@@ -44,16 +45,17 @@ public class LockService {
 
     private boolean canUpgrade(Collection<Lock> existingLocks, UUID requestingTransactionId) {
         return existingLocks.stream().allMatch(lock ->
-                lock.getOwnerTransactionId().equals(requestingTransactionId)
+                lock.ownerTransactionId().equals(requestingTransactionId)
         );
     }
 
     public void waitToLock(UUID requestingTransactionId, Resource resource, LockType lockType)
             throws DeadlockException {
         managerLock.lock();
+        var resolvedResource = resource.get();
         try {
             while (true) {
-                var existingLocks = lockTable.computeIfAbsent(resource, _ -> new ArrayList<>());
+                var existingLocks = lockTable.computeIfAbsent(resolvedResource.get(), _ -> new ArrayList<>());
                 if (isCompatible(existingLocks, requestingTransactionId, lockType)) {
                     existingLocks.add(new Lock(requestingTransactionId, lockType));
                     waitForGraph.remove(requestingTransactionId);
@@ -79,7 +81,7 @@ public class LockService {
 
     private void upgradeLock(List<Lock> existingLocks, UUID requestingTransactionId) {
         existingLocks.removeIf(lock ->
-                lock.getOwnerTransactionId().equals(requestingTransactionId)
+                lock.ownerTransactionId().equals(requestingTransactionId)
         );
         existingLocks.add(new Lock(requestingTransactionId, Write));
     }
@@ -87,10 +89,10 @@ public class LockService {
     private void updateWaitForGraph(UUID waitingTransactionId, Collection<Lock> owners) {
         var edges = waitForGraph.computeIfAbsent(waitingTransactionId, _ -> new HashSet<>());
         for (var owner : owners) {
-            if (owner.getOwnerTransactionId().equals(waitingTransactionId)) {
+            if (owner.ownerTransactionId().equals(waitingTransactionId)) {
                 continue;
             }
-            edges.add(owner.getOwnerTransactionId());
+            edges.add(owner.ownerTransactionId());
         }
     }
 
@@ -114,7 +116,7 @@ public class LockService {
         try {
             for (var entries : lockTable.values()) {
                 entries.removeIf(lock ->
-                        lock.getOwnerTransactionId().equals(transactionId)
+                        lock.ownerTransactionId().equals(transactionId)
                 );
             }
             waitForGraph.remove(transactionId);

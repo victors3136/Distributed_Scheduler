@@ -6,8 +6,8 @@ import java.util.UUID;
 
 public class LockRequest {
 
-    UUID transactionId;
-    LockType type;
+    final UUID transactionId;
+    final LockType type;
 
     public LockRequest(UUID transactionId, LockType type) {
         this.transactionId = transactionId;

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import victors3136.ubb.mfpc.controller.requests.AddWeaponRequest;
+import victors3136.ubb.mfpc.model.HasKey;
 
 import java.util.Objects;
 
@@ -12,7 +13,7 @@ import java.util.Objects;
 @Setter
 @Entity
 @Table(name = "weapons")
-public class Weapon {
+public class Weapon implements HasKey<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -60,5 +61,10 @@ public class Weapon {
                 ", name='" + name + '\'' +
                 ", damage=" + damage +
                 '}';
+    }
+
+    @Override
+    public String getKey() {
+        return name;
     }
 }
