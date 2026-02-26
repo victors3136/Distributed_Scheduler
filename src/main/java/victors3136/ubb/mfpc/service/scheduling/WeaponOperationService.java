@@ -29,7 +29,8 @@ public class WeaponOperationService implements OperationService<String, Weapon> 
                 () -> weaponRepository.getByName(weaponName.get()).orElseThrow(() -> new ValidationException(
                         "No Weapon named %s found.".formatted(weaponName))
                 ),
-                sideEffect
+                sideEffect,
+                "weapon"
         );
     }
 
@@ -38,7 +39,8 @@ public class WeaponOperationService implements OperationService<String, Weapon> 
                 FutureResource.ofWeapon(() -> weapon.get().getName()),
                 weapon,
                 weaponRef -> sideEffect.accept(weaponRepository.save(weaponRef)),
-                weaponRepository::delete
+                weaponRepository::delete,
+                "weapon"
         );
     }
 
@@ -50,7 +52,8 @@ public class WeaponOperationService implements OperationService<String, Weapon> 
                     weaponRepository.delete(weaponRef);
                     sideEffect.accept(weaponRef);
                 },
-                weaponRepository::save
+                weaponRepository::save,
+                "weapon"
         );
     }
 
@@ -60,7 +63,8 @@ public class WeaponOperationService implements OperationService<String, Weapon> 
                 newWeapon,
                 oldWeapon,
                 wpn -> sideEffect.accept(weaponRepository.save(wpn)),
-                weaponRepository::save
+                weaponRepository::save,
+                "weapon"
         );
     }
 }

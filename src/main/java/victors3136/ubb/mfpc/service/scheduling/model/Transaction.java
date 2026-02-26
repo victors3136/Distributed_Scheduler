@@ -53,11 +53,7 @@ public final class Transaction {
 
     @Override
     public String toString() {
-        return "Transaction[" +
-                "id=" + id + ", " +
-                "status=" + status + ", " +
-                "operations=" + operations + ", " +
-                "timestamp=" + timestamp + ']';
+        return "[%s]".formatted(operations.stream().map(Operation::description).reduce("%s | %s"::formatted).orElse(""));
     }
 
     public void markCommited() {

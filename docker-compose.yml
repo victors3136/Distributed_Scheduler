@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mfpc-postgres
+    environment:
+      POSTGRES_USER: mfpc_admin
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mfpc-service
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_CHARACTER_URL=jdbc:postgresql://postgres:5432/character_db
+      - SPRING_DATASOURCE_WEAPON_URL=jdbc:postgresql://postgres:5432/weapon_db
+      - SPRING_DATASOURCE_MAPPING_URL=jdbc:postgresql://postgres:5432/mapping_db
+      - SPRING_DATASOURCE_USERNAME=mfpc_admin
+      - SPRING_DATASOURCE_PASSWORD=password
+    ports:
+      - "8080:8080"

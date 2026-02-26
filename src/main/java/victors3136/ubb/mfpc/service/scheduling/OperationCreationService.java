@@ -16,36 +16,42 @@ public class OperationCreationService {
 
     static <T> Operation selectOperation(FutureResource resource,
                                          Supplier<T> action,
-                                         Consumer<T> sideEffect) {
+                                         Consumer<T> sideEffect,
+                                         String description) {
         return new Operation(
                 resource,
                 Read,
                 () -> sideEffect.accept(action.get()),
-                NoUndoActionRequired
+                NoUndoActionRequired,
+                "Select " + description
         );
     }
 
     static <T> Operation insertOperation(FutureResource resource,
                                          Supplier<T> entity,
                                          Consumer<T> save,
-                                         Consumer<T> remove) {
+                                         Consumer<T> remove,
+                                         String description) {
         return new Operation(
                 resource,
                 Write,
                 () -> save.accept(entity.get()),
-                () -> remove.accept(entity.get())
+                () -> remove.accept(entity.get()),
+                "Insert " + description
         );
     }
 
     static <T> Operation deleteOperation(FutureResource resource,
                                          Supplier<T> entity,
                                          Consumer<T> remove,
-                                         Consumer<T> restore) {
+                                         Consumer<T> restore,
+                                         String description) {
         return new Operation(
                 resource,
                 Write,
                 () -> remove.accept(entity.get()),
-                () -> restore.accept(entity.get())
+                () -> restore.accept(entity.get()),
+                "Delete " + description
         );
     }
 
@@ -53,12 +59,14 @@ public class OperationCreationService {
                                          Supplier<T> newEntity,
                                          Supplier<T> oldEntity,
                                          Consumer<T> update,
-                                         Consumer<T> restore) {
+                                         Consumer<T> restore,
+                                         String description) {
         return new Operation(
                 resource,
                 Write,
                 () -> update.accept(newEntity.get()),
-                () -> restore.accept(oldEntity.get())
+                () -> restore.accept(oldEntity.get()),
+                "Update " + description
         );
     }
 }

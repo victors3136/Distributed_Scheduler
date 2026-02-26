@@ -30,7 +30,8 @@ public class MappingOperationService implements OperationService<CharacterWeapon
                 () -> mappingRepository.get(key.get().getCharacterId(), key.get().getWeaponId()).orElseThrow(() -> new ValidationException(
                         "No mapping between character %d and weapon %d found.".formatted(key.get().getCharacterId(), key.get().getWeaponId()))
                 ),
-                sideEffect
+                sideEffect,
+                "mapping"
         );
     }
 
@@ -40,8 +41,8 @@ public class MappingOperationService implements OperationService<CharacterWeapon
                 FutureResource.ofMapping(() -> mapping.get().getId()),
                 mapping,
                 mappingRef -> sideEffect.accept(mappingRepository.save(mappingRef)),
-                mappingRepository::delete
-
+                mappingRepository::delete,
+                "mapping"
         );
     }
 
@@ -54,7 +55,8 @@ public class MappingOperationService implements OperationService<CharacterWeapon
                     mappingRepository.delete(mappingRef);
                     sideEffect.accept(mappingRef);
                 },
-                mappingRepository::save
+                mappingRepository::save,
+                "mapping"
         );
     }
 
@@ -65,7 +67,8 @@ public class MappingOperationService implements OperationService<CharacterWeapon
                 newMapping,
                 oldMapping,
                 mappingRef -> sideEffect.accept(mappingRepository.save(mappingRef)),
-                mappingRepository::save
+                mappingRepository::save,
+                "mapping"
         );
     }
 }

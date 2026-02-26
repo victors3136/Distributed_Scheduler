@@ -29,7 +29,8 @@ public class CharacterOperationService implements OperationService<String, Chara
                 () -> characterRepository.getByName(characterName.get()).orElseThrow(() -> new ValidationException(
                         "No character named %s found.".formatted(characterName))
                 ),
-                sideEffect
+                sideEffect,
+                "character"
         );
     }
 
@@ -41,7 +42,8 @@ public class CharacterOperationService implements OperationService<String, Chara
                     characterRepository.save(characterRef);
                     sideEffect.accept(characterRef);
                 },
-                characterRepository::delete
+                characterRepository::delete,
+                "character"
         );
     }
 
@@ -53,7 +55,8 @@ public class CharacterOperationService implements OperationService<String, Chara
                     characterRepository.delete(characterRef);
                     sideEffect.accept(characterRef);
                 },
-                characterRepository::save
+                characterRepository::save,
+                "character"
         );
     }
 
@@ -68,7 +71,8 @@ public class CharacterOperationService implements OperationService<String, Chara
                     assert savedCharacterRef.getClass() == Character.class;
                     sideEffect.accept(savedCharacterRef);
                 },
-                characterRepository::save
+                characterRepository::save,
+                "character"
         );
     }
 }

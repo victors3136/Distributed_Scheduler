@@ -1,0 +1,17 @@
+app:
+  datasource:
+    characters:
+      jdbc-url: ${SPRING_DATASOURCE_CHARACTER_URL}
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+    weapons:
+      jdbc-url: ${SPRING_DATASOURCE_WEAPON_URL}
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+    mappings:
+      jdbc-url: ${SPRING_DATASOURCE_MAPPING_URL}
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+      driver-class-name: org.postgresql.Driver

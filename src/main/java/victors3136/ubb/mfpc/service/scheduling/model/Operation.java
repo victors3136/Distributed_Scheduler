@@ -7,7 +7,8 @@ public record Operation(
         FutureResource resource,
         LockType lockType,
         Runnable doAction,
-        Runnable undoAction
+        Runnable undoAction,
+        String description
 ) {
     @Override
     public String toString() {

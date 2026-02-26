@@ -1,5 +1,6 @@
 package victors3136.ubb.mfpc.config.mappings;
 
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -24,10 +26,11 @@ import javax.sql.DataSource;
 )
 public class MappingConfig {
     @Bean(name = "mappingDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.mappings")
+    @ConfigurationProperties(prefix = "app.datasource.mappings")
     public DataSource mappingDataSource() {
         return DataSourceBuilder
                 .create()
+                .type(HikariDataSource.class)
                 .build();
     }
 
@@ -35,11 +38,19 @@ public class MappingConfig {
     public LocalContainerEntityManagerFactoryBean mappingEntityManagerFactory(
             EntityManagerFactoryBuilder builder,
             @Qualifier("mappingDataSource") DataSource dataSource) {
-        return builder
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        vendorAdapter.setDatabasePlatform("org.hibernate.dialect.PostgreSQLDialect");
+        vendorAdapter.setShowSql(true);
+
+        LocalContainerEntityManagerFactoryBean emf = builder
                 .dataSource(dataSource)
                 .packages("victors3136.ubb.mfpc.model.mappings")
-                .persistenceUnit("mappings")
+                .persistenceUnit("Mapping")
                 .build();
+
+        emf.setJpaVendorAdapter(vendorAdapter);
+
+        return emf;
     }
 
     @Bean(name = "mappingTransactionManager")
