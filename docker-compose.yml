@@ -9,14 +9,18 @@ services:
       - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U mfpc_admin" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: victors3136/distributed-transaction-scheduler:latest
     container_name: mfpc-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_CHARACTER_URL=jdbc:postgresql://postgres:5432/character_db
       - SPRING_DATASOURCE_WEAPON_URL=jdbc:postgresql://postgres:5432/weapon_db
