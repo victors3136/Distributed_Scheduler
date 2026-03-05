@@ -11,17 +11,11 @@ import java.util.Optional;
 
 @Repository
 public interface WeaponRepository extends JpaRepository<Weapon, Integer> {
-    @Query(value = """
-            select id
-            from weapons
-            where display_name = :name
-            """, nativeQuery = true)
-    Optional<Integer> getIdByName(@Param("name") String name);
 
     @Query(value = """
             select *
             from weapons
-            where display_name = :name
+            where display_name = :key
             """, nativeQuery = true)
-    Optional<Weapon> getByName(@Param("name") String name);
+    Optional<Weapon> getByLockKey(@Param("key") String key);
 }

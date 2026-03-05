@@ -21,29 +21,8 @@ public class Mapping implements HasKey<CharacterWeaponId> {
         this.id = new CharacterWeaponId(characterId, weaponId);
     }
 
-    public Mapping setId(CharacterWeaponId id) {
-        this.id = id;
-        return this;
-    }
-
-    public int getCharacterId() {
-        return id != null ? id.getCharacterId() : 0;
-    }
-
-    public int getWeaponId() {
-        return id != null ? id.getWeaponId() : 0;
-    }
-
-    public Mapping setCharacterId(int characterId) {
-        if (id == null) id = new CharacterWeaponId();
-        id.setCharacterId(characterId);
-        return this;
-    }
-
-    public Mapping setWeaponId(int weaponId) {
-        if (id == null) id = new CharacterWeaponId();
-        id.setWeaponId(weaponId);
-        return this;
+    public static Mapping fromRequest(Integer characterId, Integer weaponId) {
+        return new Mapping(characterId, weaponId);
     }
 
     @Override

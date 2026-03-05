@@ -1,38 +1,43 @@
-package victors3136.ubb.mfpc.service.scheduling;
+package victors3136.ubb.mfpc.service.scheduling.transactions;
 
 import org.springframework.stereotype.Service;
 import victors3136.ubb.mfpc.exceptions.Result;
+import victors3136.ubb.mfpc.service.scheduling.LockService;
+import victors3136.ubb.mfpc.service.scheduling.operations.OperationServiceRegistry;
 import victors3136.ubb.mfpc.service.scheduling.model.Transaction;
 
 import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Objects;
 import java.util.Vector;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @Service
 public class TransactionExecutorService {
     private final LockService lockService;
     public final List<Transaction> Transactions = new Vector<>();
+    private final OperationServiceRegistry registry;
 
-    TransactionExecutorService(LockService lockService) {
+    TransactionExecutorService(LockService lockService, OperationServiceRegistry registry) {
         this.lockService = lockService;
+        this.registry = registry;
     }
 
     public <T> Result<T> submit(Transaction transaction, Supplier<T> result) {
         Transactions.add(transaction);
         var undoStack = new ArrayDeque<Runnable>();
         try {
-            for (var operation : transaction.getOperations()) {
+            while (!transaction.completedAllOperations()) {
+                var operation = transaction.getNextOperation();
+                System.out.println(transaction);
                 lockService.waitToLock(
                         transaction.getId(),
                         operation.resource(),
                         operation.lockType()
                 );
                 operation.doAction().run();
-                Thread.sleep(3_000);
                 undoStack.push(operation.undoAction());
+                //noinspection BusyWait
+                Thread.sleep(1_000);
             }
             transaction.markCommited();
             return Result.withSucces(result.get());
@@ -46,8 +51,15 @@ public class TransactionExecutorService {
         } finally {
             assert !transaction.isActive();
             lockService.releaseAllLocks(transaction.getId());
-            System.out.println(Transactions.stream().map(Objects::toString).collect(Collectors.joining("\n")));
+            System.out.println(transaction);
         }
     }
 
+    public TransactionBuilder newTransaction() {
+        return new TransactionBuilder(new Transaction(), registry);
+    }
+
+    public <EntityType> Result<EntityType> submit(TransactionBuilder builder, Supplier<EntityType> result) {
+        return submit(builder.build(), result);
+    }
 }

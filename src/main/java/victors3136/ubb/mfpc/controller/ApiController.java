@@ -10,7 +10,7 @@ import victors3136.ubb.mfpc.controller.responses.HealingSummary;
 import victors3136.ubb.mfpc.model.characters.Character;
 import victors3136.ubb.mfpc.model.mappings.Mapping;
 import victors3136.ubb.mfpc.model.weapons.Weapon;
-import victors3136.ubb.mfpc.service.scheduling.OperationTranslationService;
+import victors3136.ubb.mfpc.service.scheduling.TranslationService;
 import victors3136.ubb.mfpc.exceptions.Result;
 
 
@@ -19,10 +19,10 @@ import victors3136.ubb.mfpc.exceptions.Result;
 @RequestMapping("/submit")
 public class ApiController {
 
-    private final OperationTranslationService service;
+    private final TranslationService service;
 
     @Autowired
-    public ApiController(OperationTranslationService service) {
+    public ApiController(TranslationService service) {
         this.service = service;
     }
 

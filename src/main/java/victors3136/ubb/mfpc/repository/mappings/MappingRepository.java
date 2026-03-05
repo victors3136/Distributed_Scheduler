@@ -18,5 +18,5 @@ public interface MappingRepository extends JpaRepository<Mapping, CharacterWeapo
             from mappings
             where character = :characterId and weapon = :weaponId
             """, nativeQuery = true)
-    Optional<Mapping> get(@Param("characterId") int characterId, @Param("weaponId") int weaponId);
+    Optional<Mapping> getByLockKey(@Param("characterId") int characterId, @Param("weaponId") int weaponId);
 }

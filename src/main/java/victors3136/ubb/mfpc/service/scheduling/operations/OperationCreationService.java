@@ -1,8 +1,7 @@
-package victors3136.ubb.mfpc.service.scheduling;
+package victors3136.ubb.mfpc.service.scheduling.operations;
 
 import victors3136.ubb.mfpc.service.scheduling.model.Operation;
 import victors3136.ubb.mfpc.service.scheduling.model.resources.FutureResource;
-import victors3136.ubb.mfpc.service.scheduling.model.resources.Resource;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -14,10 +13,10 @@ public class OperationCreationService {
     static private final Runnable NoUndoActionRequired = () -> {
     };
 
-    static <T> Operation selectOperation(FutureResource resource,
-                                         Supplier<T> action,
-                                         Consumer<T> sideEffect,
-                                         String description) {
+    static <EntityType> Operation selectOperation(FutureResource resource,
+                                                  Supplier<EntityType> action,
+                                                  Consumer<EntityType> sideEffect,
+                                                  String description) {
         return new Operation(
                 resource,
                 Read,
@@ -27,10 +26,10 @@ public class OperationCreationService {
         );
     }
 
-    static <T> Operation insertOperation(FutureResource resource,
-                                         Supplier<T> entity,
-                                         Consumer<T> save,
-                                         Consumer<T> remove,
+    static <EntityType> Operation insertOperation(FutureResource resource,
+                                         Supplier<EntityType> entity,
+                                         Consumer<EntityType> save,
+                                         Consumer<EntityType> remove,
                                          String description) {
         return new Operation(
                 resource,
@@ -41,10 +40,10 @@ public class OperationCreationService {
         );
     }
 
-    static <T> Operation deleteOperation(FutureResource resource,
-                                         Supplier<T> entity,
-                                         Consumer<T> remove,
-                                         Consumer<T> restore,
+    static <EntityType> Operation deleteOperation(FutureResource resource,
+                                         Supplier<EntityType> entity,
+                                         Consumer<EntityType> remove,
+                                         Consumer<EntityType> restore,
                                          String description) {
         return new Operation(
                 resource,
@@ -55,11 +54,11 @@ public class OperationCreationService {
         );
     }
 
-    static <T> Operation updateOperation(FutureResource resource,
-                                         Supplier<T> newEntity,
-                                         Supplier<T> oldEntity,
-                                         Consumer<T> update,
-                                         Consumer<T> restore,
+    static <EntityType> Operation updateOperation(FutureResource resource,
+                                         Supplier<EntityType> newEntity,
+                                         Supplier<EntityType> oldEntity,
+                                         Consumer<EntityType> update,
+                                         Consumer<EntityType> restore,
                                          String description) {
         return new Operation(
                 resource,

@@ -5,10 +5,7 @@ import lombok.Setter;
 import victors3136.ubb.mfpc.service.scheduling.model.enums.TransactionStatus;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static victors3136.ubb.mfpc.service.scheduling.model.enums.TransactionStatus.*;
 
@@ -17,22 +14,34 @@ import static victors3136.ubb.mfpc.service.scheduling.model.enums.TransactionSta
 @Setter
 public final class Transaction {
     private final UUID id;
-    private final List<Operation> operations;
+    private final Queue<Operation> pendingOperations;
+    private final List<Operation> completedOperations;
     private final Instant timestamp;
     private TransactionStatus status = Active;
 
-    public Transaction(UUID id, List<Operation> operations, Instant timestamp) {
+    public Transaction(UUID id, Queue<Operation> pendingOperations, Instant timestamp) {
         this.id = id;
-        this.operations = operations;
+        this.pendingOperations = pendingOperations;
         this.timestamp = timestamp;
+        this.completedOperations = new ArrayList<>();
     }
 
     public Transaction() {
-        this(UUID.randomUUID(), new ArrayList<>(), Instant.now());
+        this(UUID.randomUUID(), new ArrayDeque<>(), Instant.now());
     }
 
     public void enqueue(Operation... operations) {
-        this.operations.addAll(List.of(operations));
+        this.pendingOperations.addAll(List.of(operations));
+    }
+
+    public boolean completedAllOperations() {
+        return pendingOperations.isEmpty();
+    }
+
+    public Operation getNextOperation() {
+        var next = pendingOperations.poll();
+        completedOperations.add(next);
+        return next;
     }
 
 
@@ -42,18 +51,26 @@ public final class Transaction {
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (Transaction) obj;
         return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.operations, that.operations) &&
+                Objects.equals(this.pendingOperations, that.pendingOperations) &&
                 Objects.equals(this.timestamp, that.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, status, operations, timestamp);
+        return Objects.hash(id, status, pendingOperations, timestamp);
     }
 
     @Override
     public String toString() {
-        return "[%s]".formatted(operations.stream().map(Operation::description).reduce("%s | %s"::formatted).orElse(""));
+        return switch (status) {
+            case Active -> "%s:\n\tto do: [%s]".formatted(status,
+                    pendingOperations.stream().map(Operation::description).reduce("%s | %s"::formatted).orElse(""));
+            case Commited -> "%s:\n\tdone: [%s]".formatted(status,
+                    completedOperations.stream().map(Operation::description).reduce("%s | %s"::formatted).orElse(""));
+            case Aborted -> "%s: \n\tto undo: [%s]\n\tpending: [%s]".formatted(status,
+                    completedOperations.stream().map(Operation::description).reduce("%s | %s"::formatted).orElse(""),
+                    pendingOperations.stream().map(Operation::description).reduce("%s | %s"::formatted).orElse(""));
+        };
     }
 
     public void markCommited() {
