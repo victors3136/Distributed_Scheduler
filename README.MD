@@ -37,3 +37,11 @@ All endpoints return a `Result<T>` object.
   "result": { ... },
   "error": { ... }
 }
+```
+## Running the project
+```bash
+> docker pull victors3136/distributed-transaction-scheduler:latest
+> docker-compose up -d
+```
+Following this, the endpoints from the class ApiController will be available under http://localhost:8080/submit
+
